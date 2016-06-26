@@ -7,7 +7,9 @@ public class Node{
 	private Vector3 pos;
 	private Vector3 goal;
 
-	//perhaps also a node list 
+	private bool enabled = true;
+
+	//node list for pathfinding
 	private List<Node> childrenNodes = new List<Node>();
 
 	//properties of the ray
@@ -27,12 +29,17 @@ public class Node{
 	private float pathOffset = 0.2f;
 	private float minimumAngleDifference = 0.2f;
 	
-	public Node(Vector3 _pos, Vector3 _goal){
+	public Node(Vector3 _pos, Vector3 _goal, int rays, bool _enabled){
+		enabled = _enabled;
+		rayCount = rays;
 		pos = _pos;
 		goal = _goal;
 
 		to360factor = (360 / (float)rayCount);
 
+		fireRays (pos, goal);
+
+		/*Extremely basic 'pathfind' solution (NOT FOR ACTUAL USE)
 		//fireRays (pos, goal);
 		if(Physics.Linecast (pos, goal)) {
 			//fire rays over 360 degrees to find potential points
@@ -44,6 +51,7 @@ public class Node{
 			Debug.DrawLine(pos, goal, Color.green, drawDuration);
 			//Debug.Log("Path found");
 		}
+		*/
 	}
 
 	private void fireRays(Vector3 start, Vector3 end){
@@ -64,7 +72,7 @@ public class Node{
 					
 				}
 				else{
-					findEdgeException(lastHitAngle, i, hit.transform.gameObject);
+					if(enabled)findEdgeException(lastHitAngle, i, hit.transform.gameObject);
 					obj = hit.transform.gameObject;
 				}
 
@@ -75,7 +83,7 @@ public class Node{
 					//check if the current ray is the following of a ray that misses, so only iterate back in this case
 					if(lastHitAngle-lastMissAngle == 1){
 						//go back to the previous non hit distance, to determine the edge
-						findEdge(i, lastMissAngle);
+						if(enabled)findEdge(i, lastMissAngle);
 					}
 				}
 			} 
@@ -88,7 +96,7 @@ public class Node{
 				if(lastMissAngle!=i && lastHitAngle!=999){
 					if(i-lastHitAngle == 1){
 						//need some exceptions here, but for now keep the amount of rays limited
-						findEdge(lastHitAngle, i);
+						if(enabled)findEdge(lastHitAngle, i);
 					}
 				}
 				//store the last angle, so you can compare it when there does occur a hit
@@ -106,7 +114,6 @@ public class Node{
 		if (Physics.Linecast (pos, newPoint, out hit) && hit.transform.gameObject == o) {
 			Debug.DrawLine (pos, hit.point, Color.black, drawDuration);
 
-			//Debug.Log(Mathf.Abs(angle*to360factor-lastAngle*to360factor));
 			//check if the angle difference is small enough to get a better idea where the edge is, else loop again
 			if(Mathf.Abs(angle*to360factor-lastAngle*to360factor)>minimumAngleDifference){
 				//no need to adjust the lastRayAngle, since we want to compare the point that is closer to the edge to the point that has no hits
@@ -158,17 +165,13 @@ public class Node{
 				Vector3 old = new Vector3();
 				if(angle-lastAngle > 0){
 					old = new Vector3(radius*Mathf.Cos ((interpolate-diff)*to360factor*Mathf.Deg2Rad),0,radius*Mathf.Sin ((interpolate-diff)*to360factor*Mathf.Deg2Rad) );
-					//Debug.Log ("pos");
 				}
 				else{
-
 					old = new Vector3(radius*Mathf.Cos ((interpolate+diff)*to360factor*Mathf.Deg2Rad),0,radius*Mathf.Sin ((interpolate+diff)*to360factor*Mathf.Deg2Rad) );
-					//Debug.Log ("neg");
 				}
 
 				Vector3 newPos = (newPoint-old)/2;
 				Vector3 d = hit.point - newPos;
-				//Debug.Log(d);
 				//Debug.DrawLine (pos, d, Color.black, drawDuration);
 				positions.Add(d);
 			}
@@ -181,6 +184,7 @@ public class Node{
 		}
 	}
 
+	/* Extremely basic 'pathfind' solution (NOT FOR ACTUAL USE)
 	private void comparePositions(){
 		float dist = 9999;
 		Vector3 bestPos = new Vector3 ();
@@ -197,4 +201,5 @@ public class Node{
 		childrenNodes.Add(new Node(bestPos, goal));
 		//Debug.DrawLine (pos, bestPos, Color.black, drawDuration);
 	}
+	*/
 }

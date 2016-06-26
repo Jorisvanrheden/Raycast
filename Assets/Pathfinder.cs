@@ -13,25 +13,27 @@ public class Pathfinder : MonoBehaviour {
 	//every waypoint will have a list of hits to look from
 	private List<Node> waypoints = new List<Node>();
 
+	public int rayCount = 45;
+	public bool techniqueEnabled = true;
+
 
 
 	void Start(){
 
 		//set the first waypoint
-
-		waypoints.Add (new Node (start, end));
+		waypoints.Add (new Node (start, end, rayCount, techniqueEnabled));
 
 	}
 
 	void Update(){
 
 
-		waypoints [0] = new Node (light.transform.position, end);
-
-		times.Add (1 / Time.deltaTime);
+		waypoints [0] = new Node (light.transform.position, end, rayCount, techniqueEnabled);
 
 		light.transform.Translate(new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical")));
 
+		/* calculating average FPS
+		times.Add (1 / Time.deltaTime);
 		if (Input.GetKeyDown (KeyCode.Space)) {
 			float t = 0;
 			foreach(float time in times){
@@ -39,10 +41,7 @@ public class Pathfinder : MonoBehaviour {
 			}
 			Debug.Log("Average FPS: " + t/times.Count);
 		}
+		*/
 	
-	}
-
-	public void newPath(){
-		//waypoints [0] = new Node (start, end);
 	}
 }
